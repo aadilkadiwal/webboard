@@ -15,8 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from board import api
+
+router = DefaultRouter()
+router.register('users', api.UserModelViewSet)
+router.register('boards', api.BoardModelViewSet)
+router.register('topics', api.TopicModelViewSet)
+router.register('posts', api.PostModelViewSet)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('super-manager/', admin.site.urls),
+    path('api/', include(router.urls)),
     path('', include('board.urls')),
 ]

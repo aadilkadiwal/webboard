@@ -6,9 +6,10 @@ from . models import (
     Post
 )
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerialzier(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'password']
 
 class BoardSerialzier(serializers.ModelSerializer):
     class Meta:

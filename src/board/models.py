@@ -9,7 +9,6 @@ class Board(models.Model):
     def __str__(self):
         return self.name
 
-
 class Topic(models.Model):
     subject = models.CharField(max_length=255)
     last_updated = models.DateTimeField(auto_now_add=True)

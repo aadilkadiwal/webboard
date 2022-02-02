@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from .serializers import (
-    UserSerializer,
+    UserSerialzier,
     BoardSerialzier,
     TopicSerializer,
     PostSerializer
@@ -14,7 +14,7 @@ from .models import (
 
 class UserModelViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserSerialzier
 
 class BoardModelViewSet(viewsets.ModelViewSet):
     queryset = Board.objects.all()
