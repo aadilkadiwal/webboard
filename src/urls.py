@@ -28,4 +28,5 @@ urlpatterns = [
     path('super-manager/', admin.site.urls),
     path('api/', include(router.urls)),
     path('', include('board.urls')),
+    path('', include('accounts.urls')),
 ]

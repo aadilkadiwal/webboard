@@ -1,13 +1,13 @@
-{% extends 'board/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}
     {{ board.name }} - {{ block.super }}
-{% endblock %}
+{% endblock title %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'home-page' %}">Boards</a></li>
   <li class="breadcrumb-item active">{{ board.name }}</li>
-{% endblock %}
+{% endblock breadcrumb %}
 
 {% block content %}
     <div class="mb-4">
@@ -24,15 +24,15 @@
         </tr>
         </thead>
         <tbody>
-        {% for topic in board.topics.all %}
+        {% for topic in topics %}
             <tr>
-            <td>{{ topic.subject }}</td>
+            <td><a href="{% url 'topic-posts' board.pk topic.pk %}">{{ topic.subject }}</a></td>
             <td>{{ topic.starter.username }}</td>
-            <td>0</td>
-            <td>0</td>
+            <td>{{ topic.replies }}</td>
+            <td>{{ topic.views }}</td>
             <td>{{ topic.last_updated }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-{% endblock %}
+{% endblock content %}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     # custom
     'board',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            # Templates application location.
             os.path.join(BASE_DIR, 'src/templates')
         ],
         'APP_DIRS': True,
@@ -129,6 +131,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Static file location
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'src/static'),
 ]
@@ -137,3 +140,15 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# When user logout it will redirect to home page
+LOGOUT_REDIRECT_URL = 'home-page'
+
+# Wher user is successfully login it will redirect to home page
+LOGIN_REDIRECT_URL = 'home-page'
+
+# If the user is non-authorized it will direct to login page
+LOGIN_URL = 'login'
+
+# To reset password by email
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
