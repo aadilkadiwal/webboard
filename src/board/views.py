@@ -1,7 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.urls import reverse
+from django.core.paginator import (
+    Paginator,
+    EmptyPage,
+    PageNotAnInteger
+)     
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.utils import timezone
+from django.views.generic import (
+    ListView,
+    UpdateView
+)
 from .models import (
     Board,
     Topic,
@@ -13,14 +25,15 @@ from .forms import (
 )
 
 '''
-This function is used to view as a home page.
+This class based view function is used to view as a home page.
 It show all "Board" data.
 How many "Post" and "Topic" are there in "Board" topic.
 It also show when last "Post" is post.
 '''
-def home(request):
-    boards = Board.objects.all()
-    return render(request, 'board/home.html', {'boards': boards})
+class BoardListView(ListView):
+    model = Board
+    context_object_name = 'boards'
+    template_name = 'board/home.html'
 
 '''
 This function is used to view of all "Topic" of each "Board".
@@ -35,7 +48,23 @@ def board_topics(request, pk):
     This new column, which will be translated into a property, accessible via
     "topic.replies" contain the count of posts a given topic has.
     '''
-    topics = board.topics.order_by('-last_updated').annotate(replies=Count('posts') - 1) 
+    queryset = board.topics.order_by('-last_updated').annotate(replies=Count('posts') - 1)
+    page = request.GET.get('page', 1)
+    '''Function Base View Pagination: Paginate queryset in pages of 6 each.'''
+    paginator = Paginator(queryset, 6)
+
+    try:
+        '''See the current page out of total page.'''
+        topics = paginator.page(page)
+    except PageNotAnInteger:
+        '''Fallback to the first page.'''
+        topics = paginator.page(paginator.num_pages)
+    except EmptyPage:
+        '''
+        Probably the user tried to add a page number.
+        in the url, so fallback to the last page.   
+        '''
+        topics = paginator.page(paginator.num_pages)    
     return render(request, 'board/topics.html', {'board': board, 'topics': topics})    
 
 '''
@@ -87,23 +116,37 @@ def new_topic(request, pk):
     return render(request, 'board/new_topic.html', {'board': board, 'form': form})
 
 ''''
-This function is used to create a post.
+This class base function is used to create a post.
 Login is required before posting any post.
-Dealing with one argument "pk" which is used to identify "Board",
-Dealing with second argument "topic_pk" which is used to identify which topic to retrieve from the database.
 '''
-@login_required
-def topic_posts(request, pk, topic_pk):
-    '''
-    "board__pk": Is used to access the data of "Board"
-    "topic_pk": Is used to view data
-    '''
-    topic = get_object_or_404(Topic, board__pk=pk, pk=topic_pk)
-    '''Keep track of the number of views a given topic is receiving.'''
-    topic.views += 1
-    topic.save()
-    return render(request, 'board/topic_posts.html', {'topic': topic})
+@method_decorator(login_required, name='dispatch')
+class PostListView(ListView):
+    model = Post
+    context_object_name = 'posts'
+    template_name = 'board/topic_posts.html'
+    paginated_by = 1
 
+    def get_context_data(self, **kwargs):
+        '''Control the view counting system '''
+        session_key = 'viewed_topic_{}'.format(self.topic.pk)
+        if not self.request.session.get(session_key, False):
+            '''Keep track of the number of views a given topic is receiving.'''
+            self.topic.views += 1
+            self.topic.save()
+            self.request.session[session_key] = True
+            
+        kwargs['topic'] = self.topic
+        return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        '''
+        "board__pk": Is used to access the data of "Board".
+        "topic_pk": Is used to view data.
+        '''
+        self.topic = get_object_or_404(Topic, board__pk=self.kwargs.get('pk'), pk=self.kwargs.get('topic_pk'))
+        queryset = self.topic.posts.order_by('created_at')
+        return queryset
+   
 '''
 This function is used to reply message on specific post.
 Dealing with one argument "pk" which is used to identify "Board",
@@ -123,8 +166,59 @@ def reply_topic(request, pk, topic_pk):
             post.topic = topic
             post.created_by = request.user
             post.save()
+
+            '''Updating the last update.'''
+            topic.last_updated = timezone.now()
+            topic.save()
+
+            '''
+            Sending the user to the last page.
+            In the topic_post_url building a URL with the last page and adding an anchor to the element with id equals to the post ID.
+            '''
+            topic_url = reverse('topic-posts', kwargs={'pk': pk, 'topic_pk': topic_pk})
+            topic_post_url = '{url}?page={page}#{id}'.format(
+                url=topic_url,
+                id=post.pk,
+                page=topic.get_page_count()
+            )
             '''After posting a reply, the user is redirect back to the topics posts'''
-            return redirect('topic-posts', pk=pk, topic_pk=topic_pk)
+            return redirect(topic_post_url)
     else:
         form = PostForm()
     return render(request, 'board/reply_topic.html', {'topic': topic, 'form': form})
+
+'''
+This generic class based view is used to edit post.
+Can't decorate with the "@login_required" decorator.
+In class-based views it's common to decorate the "dispatch" method. All requests pass through this method, so it's safe to decorate it.
+'''
+@method_decorator(login_required, name='dispatch')
+class PostUpdateView(UpdateView):
+    model = Post
+    fields = ('message', )
+    template_name = 'board/edit_post.html'
+    '''To identify the name of the keyword argument used to retrieve the Post object.'''
+    pk_url_kwarg = 'post_pk'
+    '''
+    To rename it to post instead.
+    Navigating through the post object: "post.topic.board.pk".
+    If I didn't set the context_object_name to post. It would be "object.topic.board.pk".
+    '''
+    context_object_name = 'post'
+
+    '''Override get_queryset to '''
+    def get_queryset(self):
+        '''
+        Reusing the "get_queryset" method from the parent class.
+        Adding an extra filter to the queryset, filtering the post using the logged in user, available inside the project.
+        '''
+        queryset = super().get_queryset()
+        return queryset.filter(created_by=self.request.user)
+
+    '''Override the form_valid method, to set some extra field such as the updated_by and updated_at.'''
+    def form_valid(self, form):
+        post = form.save(commit=False) 
+        post.updated_by = self.request.user
+        post.updated_at = timezone.now()
+        post.save()
+        return redirect('topic-posts', pk=post.topic.board.pk, topic_pk=post.topic.pk)  

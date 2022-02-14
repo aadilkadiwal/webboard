@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Display data and time fields more naturally.
+    'django.contrib.humanize',
     # Third party
     'rest_framework',
     'widget_tweaks',
