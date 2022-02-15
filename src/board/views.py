@@ -58,7 +58,7 @@ def board_topics(request, pk):
         topics = paginator.page(page)
     except PageNotAnInteger:
         '''Fallback to the first page.'''
-        topics = paginator.page(paginator.num_pages)
+        topics = paginator.page(1)
     except EmptyPage:
         '''
         Probably the user tried to add a page number.
@@ -124,7 +124,7 @@ class PostListView(ListView):
     model = Post
     context_object_name = 'posts'
     template_name = 'board/topic_posts.html'
-    paginated_by = 1
+    paginate_by = 2
 
     def get_context_data(self, **kwargs):
         '''Control the view counting system '''
@@ -172,15 +172,16 @@ def reply_topic(request, pk, topic_pk):
             topic.save()
 
             '''
-            Sending the user to the last page.
-            In the topic_post_url building a URL with the last page and adding an anchor to the element with id equals to the post ID.
+            In the topic_post_url building a URL with the last page and
+            adding an anchor to the element with id equals to the post ID.
             '''
-            topic_url = reverse('topic-posts', kwargs={'pk': pk, 'topic_pk': topic_pk})
+            topic_url = reverse('topic_posts', kwargs={'pk': pk, 'topic_pk': topic_pk})
             topic_post_url = '{url}?page={page}#{id}'.format(
                 url=topic_url,
                 id=post.pk,
                 page=topic.get_page_count()
             )
+
             '''After posting a reply, the user is redirect back to the topics posts'''
             return redirect(topic_post_url)
     else:
