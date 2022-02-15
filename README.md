@@ -4,7 +4,7 @@ This project is a discussion board (a forum). The whole idea is to maintain seve
 
 ## Running the Project on Local Machine
 --- 
-Open Terminal and set a path where the project is cloned or downloaded.
+Open Command Prompt and set a path where the project is cloned or downloaded.
 
 For Example, My Project is located on the desktop.
 
@@ -65,7 +65,7 @@ Virtual Environement is created, to **activate** it.
 ```
     C:\Users\Shaan\Desktop\webboard>source venv/bin/activate
 ```
-Your Terminal looks like:
+Your Command Prompt looks like:
 
 ```
     (venv) C:\Users\Shaan\Desktop\webboard>
@@ -89,7 +89,7 @@ Before running your project your Command Prompt should look like:
     (venv) C:\Users\Shaan\Desktop\webboard/src>
 ```
 
-Create the database:
+Run migrations:
 
 ```
     (venv) C:\Users\Shaan\Desktop\webboard/src>python manage.py migrate
