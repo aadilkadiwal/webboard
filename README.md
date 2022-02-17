@@ -86,19 +86,19 @@ After installing all libraries. Now it's time to run a project.Before that you h
 Before running your project your Command Prompt should look like:
 
 ```
-    (venv) C:\Users\Shaan\Desktop\webboard/src>
+    (venv) C:\Users\Shaan\Desktop\webboard\src>
 ```
 
 Run migrations:
 
 ```
-    (venv) C:\Users\Shaan\Desktop\webboard/src>python manage.py migrate
+    (venv) C:\Users\Shaan\Desktop\webboard\src>python manage.py migrate
 ```
 
 Finally, run the development server:
 
 ```
-    (venv) C:\Users\Shaan\Desktop\webboard/src>python manage.py runserver
+    (venv) C:\Users\Shaan\Desktop\webboard\src>python manage.py runserver
 ```
 
 The **Project** will be available at:**http://127.0.0.1:8000**
