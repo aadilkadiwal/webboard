@@ -2,15 +2,16 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Post, Topic
+from .models import Post, Topic, Board
 
-"""
-ModelForm is associated with the "Topic" model.
-The "subject" in the fields list inside the Meta class is referring to the "subject" field in the "Topic" model.
-Defining an extra field named "message" in a form. This refer to the message in the "Post" we want to save.
-"""
+class NewBoardForm(forms.ModelForm):
+    class Meta:
+        model = Board
+        fields = ["name", "description"]
 
-
+# ModelForm is associated with the "Topic" model.
+# The "subject" in the fields list inside the Meta class is referring to the "subject" field in the "Topic" model.
+# Defining an extra field named "message" in a form. This refer to the message in the "Post" we want to save.
 class NewTopicForm(forms.ModelForm):
     message = forms.CharField(
         widget=forms.Textarea(
@@ -24,14 +25,8 @@ class NewTopicForm(forms.ModelForm):
         model = Topic
         fields = ["subject", "message"]
 
-
-"""
-UserCreationForm: Django built-in form.
-Fields in UserCreationForm by default: username, password, password confirmation.
-Created a new field as a email in form.
-"""
-
-
+# UserCreationForm: Django built-in form. Created a new field as a email in form.
+# Fields in UserCreationForm by default: username, password, password confirmation.
 class SignUpForm(UserCreationForm):
     email = forms.CharField(max_length=254, required=True, widget=forms.EmailInput())
 

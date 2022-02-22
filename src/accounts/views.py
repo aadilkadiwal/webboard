@@ -6,9 +6,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView
-
 from board.forms import SignUpForm
-
 
 # This function is used to register a new user.
 def signup(request):
@@ -25,12 +23,9 @@ def signup(request):
     return render(request, "accounts/signup.html", {"form": form})
 
 
-"""
-This class base function is used to change the first_name, last_name and email of user.
-Login is required to change user info.
-"""
 
-
+# This class base function is used to change the first_name, last_name and email of user.
+# Login is required to change user info.
 @method_decorator(login_required, name="dispatch")
 class UserUpdateView(UpdateView):
     model = User

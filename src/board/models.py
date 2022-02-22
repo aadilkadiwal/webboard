@@ -6,7 +6,7 @@ from django.utils.html import mark_safe
 from markdown import markdown
 
 
-# Keeping a BOard name unique and description of what the board is all about.
+# Keeping a Board name unique and description of what the board is all about.
 class Board(models.Model):
     name = models.CharField(max_length=30, unique=True)
     description = models.CharField(max_length=100)
@@ -29,14 +29,8 @@ class Board(models.Model):
     def get_last_post(self):
         return Post.objects.filter(topic__board=self).order_by("-created_at").first()
 
-
-"""
-In each Board there will be serval topics. The name of user who started the topic and how many time topic has been viewed.
-related_name: To create a reverse relationship.
-(where "Board" instance will have access a list of "Topic" instance that belong to it)
-"""
-
-
+# In each Board there will be serval topics. The name of user who started the topic and how many time topic has been viewed.
+# related_name: To create a reverse relationship(where "Board" instance will have access a list of "Topic" instance that belong to it)
 class Topic(models.Model):
     subject = models.CharField(max_length=255)
     last_updated = models.DateTimeField(auto_now_add=True)

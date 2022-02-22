@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -8,27 +9,34 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, UpdateView
 
-from .forms import NewTopicForm, PostForm
+from .forms import NewBoardForm, NewTopicForm, PostForm
 from .models import Board, Post, Topic
 
-"""
-This class based view function is used to view as a home page. It show all "Board" data.
-How many "Post" and "Topic" are there in "Board" topic. It also show when last "Post" is post.
-"""
-
-
+# This class based view function is used to view as a home page. It show all "Board" data.
+# How many "Post" and "Topic" are there in "Board" topic. It also show when last "Post" is post.
 class BoardListView(ListView):
     model = Board
     context_object_name = "boards"
     template_name = "board/home.html"
 
 
-"""
-This function is used to view of all "Topic" of each "Board".It show starter (name of user who created the topic).
-How many Replies and Views are there of each topic.It also show when the topic is last updated.
-"""
+# This function is used to create new board. Login is required.
+@login_required
+def new_board(request):
+    if request.method == "POST":
+        form = NewBoardForm(request.POST)
+        if form.is_valid():
+            board = Board.objects.create(
+                name = form.cleaned_data.get('name'),
+                description = form.cleaned_data.get('description')
+            )
+            return redirect('home-page') 
+    else:
+        NewBoardForm() 
+    return render(request, 'board/new_board.html')
 
-
+# This function is used to view of all "Topic" of each "Board".It show starter (name of user who created the topic).
+# How many Replies and Views are there of each topic.It also show when the topic is last updated.
 def board_topics(request, pk):
     board = get_object_or_404(Board, pk=pk)
     """
@@ -51,13 +59,8 @@ def board_topics(request, pk):
         topics = paginator.page(paginator.num_pages)
     return render(request, "board/topics.html", {"board": board, "topics": topics})
 
-
-"""
-This function is used to create a new topic. Login is required before creating a new topic.
-Dealing with one argument as "pk" which is used to identify the "Board".
-"""
-
-
+# This function is used to create a new topic. Login is required before creating a new topic.
+# Dealing with one argument as "pk" which is used to identify the "Board".
 @login_required
 def new_topic(request, pk):
     board = get_object_or_404(Board, pk=pk)
@@ -124,14 +127,8 @@ class PostListView(ListView):
         queryset = self.topic.posts.order_by("created_at")
         return queryset
 
-
-"""
-This function is used to reply message on specific post.
-Dealing with one argument "pk" which is used to identify "Board",
-Dealing with second argument "topic_pk" which is used to identify which topic to retrieve from the database.
-"""
-
-
+# This function is used to reply message on specific post. Dealing with one argument "pk" which is used to identify "Board",
+# Dealing with second argument "topic_pk" which is used to identify which topic to retrieve from the database.
 @login_required
 def reply_topic(request, pk, topic_pk):
     topic = get_object_or_404(Topic, board__pk=pk, pk=topic_pk)
@@ -160,13 +157,8 @@ def reply_topic(request, pk, topic_pk):
         form = PostForm()
     return render(request, "board/reply_topic.html", {"topic": topic, "form": form})
 
-
-"""
-This generic class based view is used to edit post. Can't decorate with the "@login_required" decorator.
-In class-based views it's common to decorate the "dispatch" method. All requests pass through this method, so it's safe to decorate it.
-"""
-
-
+# This generic class based view is used to edit post. Can't decorate with the "@login_required" decorator.
+# In class-based views it's common to decorate the "dispatch" method. All requests pass through this method, so it's safe to decorate it.
 @method_decorator(login_required, name="dispatch")
 class PostUpdateView(UpdateView):
     model = Post
