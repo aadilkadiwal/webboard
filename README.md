@@ -25,7 +25,7 @@ Enter into postgres(superuser) user's shell
 Copy paste below commands till EOF and press enter:
 
 ```
-    export DB_NAME=webboard
+    export DB_NAME='project-name'
     export DB_OWNER=$DB_NAME
     export DB_PASSWORD=devpassword
     psql <<EOF
@@ -40,6 +40,12 @@ Copy paste below commands till EOF and press enter:
 ### On Local Machine
 ---
 Make sure that in your system **python** is installed and the python --version should be **3.6** or **above**.
+
+Make a .env file with the help of .env.example and fill those information in .env file as per your database.
+
+```
+    C:\Users\Shaan\Desktop\webboard>cp .env.example .env
+```
 
 With the help of pip, a tool to manage and install python packages, to install **virtualenv**.
 
@@ -59,6 +65,7 @@ Now your webboard directory looks like:
   * src
   * venv
   * requirements.txt
+  * .env.example
 
 Virtual Environement is created, to **activate** it.
 

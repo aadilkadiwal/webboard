@@ -3,7 +3,6 @@ import math
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.html import mark_safe
-from django.utils.text import Truncator
 from markdown import markdown
 
 
@@ -84,8 +83,7 @@ class Post(models.Model):
     # To make a database readable.
     def __str__(self):
         # It's a convenient way to truncate long strings into an arbitrary string size(here we are using 30).
-        truncated_message = Truncator(self.message)
-        return truncated_message.chars(30)
+        return self.message[:30]
 
     # This function is used to use markdown in "post" and "reply".
     def get_message_as_markdown(self):
