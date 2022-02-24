@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'widget_tweaks',
     # custom
+    'core',
     'board',
     'accounts',
 ]

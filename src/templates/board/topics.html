@@ -46,7 +46,7 @@
                     <td class="align-middle">{{ topic.starter.username }}</td>
                     <td class="align-middle">{{ topic.replies }}</td>
                     <td class="align-middle">{{ topic.views }}</td>
-                    <td class="align-middle">{{ topic.last_updated|naturaltime }}</td>
+                    <td class="align-middle">{{ topic.created|naturaltime }}</td>
                 </tr>
             {% endfor %}
         </tbody>

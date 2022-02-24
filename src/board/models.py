@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.html import mark_safe
 from markdown import markdown
+from core.models import AbstractTrack
 
 
 # Keeping a Board name unique and description of what the board is all about.
@@ -27,13 +28,12 @@ class Board(models.Model):
 
     # This function is used to view which user and what time last post is posted.
     def get_last_post(self):
-        return Post.objects.filter(topic__board=self).order_by("-created_at").first()
+        return Post.objects.filter(topic__board=self).order_by("-created").first()
 
 # In each Board there will be serval topics. The name of user who started the topic and how many time topic has been viewed.
 # related_name: To create a reverse relationship(where "Board" instance will have access a list of "Topic" instance that belong to it)
-class Topic(models.Model):
+class Topic(AbstractTrack):
     subject = models.CharField(max_length=255)
-    last_updated = models.DateTimeField(auto_now_add=True)
     board = models.ForeignKey(Board, related_name="topics", on_delete=models.CASCADE)
     starter = models.ForeignKey(User, related_name="topics", on_delete=models.CASCADE)
     views = models.PositiveIntegerField(default=0)
@@ -60,14 +60,13 @@ class Topic(models.Model):
 
     # In reply page limit it to last ten post
     def get_last_ten_posts(self):
-        return self.posts.order_by("-created_at")[:10]
+       return self.posts.order_by("-created")[:10]
 
 
 # In each topic user can post message and replies those post. Set current date and time while posting mesage.
-class Post(models.Model):
+class Post(AbstractTrack):
     message = models.TextField(max_length=4000)
     topic = models.ForeignKey(Topic, related_name="posts", on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True)
     created_by = models.ForeignKey(User, related_name="posts", on_delete=models.CASCADE)
     updated_by = models.ForeignKey(

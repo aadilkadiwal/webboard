@@ -44,7 +44,7 @@ def board_topics(request, pk):
     This new column, which will be translated into a property, accessible via
     "topic.replies" contain the count of posts a given topic has.
     """
-    queryset = board.topics.order_by("-last_updated").annotate(
+    queryset = board.topics.order_by("-created").annotate(
         replies=Count("posts") - 1
     )
     page = request.GET.get("page", 1)
@@ -124,7 +124,7 @@ class PostListView(ListView):
         self.topic = get_object_or_404(
             Topic, board__pk=self.kwargs.get("pk"), pk=self.kwargs.get("topic_pk")
         )
-        queryset = self.topic.posts.order_by("created_at")
+        queryset = self.topic.posts.order_by("created")
         return queryset
 
 # This function is used to reply message on specific post. Dealing with one argument "pk" which is used to identify "Board",
@@ -141,7 +141,7 @@ def reply_topic(request, pk, topic_pk):
             post.save()
 
             # Updating the last update.
-            topic.last_updated = timezone.now()
+            topic.created  = timezone.now()
             topic.save()
 
             """
