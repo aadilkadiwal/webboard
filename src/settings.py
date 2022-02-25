@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Third party
     'rest_framework',
     'widget_tweaks',
+    'django_extensions',
     # custom
     'core',
     'board',
