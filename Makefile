@@ -1,4 +1,4 @@
-.PHONY: all help run collect deps migrate freeze
+.PHONY: run migrate deps sh db
 FILENAME := .appname
 APPNAME := `cat $(FILENAME)`
 
